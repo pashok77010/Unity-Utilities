@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-using Unity.VisualScripting;
 
 [RequireComponent(typeof(Holder))]
 public class Anim : MonoBehaviour
 {
     public Holder holder;
     public Vector3 instantScale;
+    public bool unscaledTime;
 
     [Header("Start")]
     public Ease startEase = Ease.InOutExpo;
@@ -30,10 +30,11 @@ public class Anim : MonoBehaviour
     public float endDur = 0.314f;
     public float endScale;
     public bool destroy;
-
+    
     void OnValidate()
     {
         if (holder == null) holder = GetComponent<Holder>();
+        startScale = holder.tr.localScale;
     }
 
     public void Activate(bool enable)
@@ -49,14 +50,9 @@ public class Anim : MonoBehaviour
         }
     }
 
-    void Awake()
-    {
-        startScale = holder.tr.localScale;
-    }
-
     void Start()
     {
-        // L.LW("name = "+ name);
+        // L.W("name = "+ name);
         if (activeStart)
         {
             AnimStart();
@@ -64,19 +60,20 @@ public class Anim : MonoBehaviour
 
         if (activeEnd)
         {
-            // L.LW("if (endWaitDur > 0)");
+            // L.W("if (endWaitDur > 0)");
             StartCoroutine(WaitAndEndScale());
         }
     }
 
     public void AnimStart()
     {
-        // L.LW("name = "+ name);
+        L.W("name = "+ name);
         holder.obj.SetActive(true);
         holder.tr.localScale = instantScale;
         if(startScaleTween != null) startScaleTween.Kill();
         startScaleTween = holder.tr.DOScale(startScale, startDur)
         .SetEase(startEase)
+        .SetUpdate(unscaledTime)
         .OnComplete(()=>
         {
             if (liveDur > 0 & endWaitDur == 0)
@@ -88,7 +85,8 @@ public class Anim : MonoBehaviour
         if(holder.cg) 
         {
             holder.cg.alpha = 0;
-            holder.cg.DOFade(1, startDur);
+            holder.cg.DOFade(1, startDur)
+            .SetUpdate(unscaledTime);
         }
         if(holder.button) holder.button.interactable = true;
     }
@@ -97,12 +95,13 @@ public class Anim : MonoBehaviour
     {
         liveTween = holder.tr.DOScale(liveScale, liveDur)
         .SetEase(liveEase)
+        .SetUpdate(unscaledTime)
         .SetLoops(-1, LoopType.Yoyo);
     }
 
     public IEnumerator WaitAndEndScale()
     {
-        // L.LW("name = "+ name);
+        // L.W("name = "+ name);
         yield return new WaitForSeconds(endWaitDur);
         AnimEnd();
     }
@@ -118,6 +117,7 @@ public class Anim : MonoBehaviour
 
         holder.tr.DOScale(endScale, endDur)
         .SetEase(endEase)
+        .SetUpdate(unscaledTime)
         .OnComplete(() =>
         {
             if (destroy)
@@ -136,6 +136,9 @@ public class Anim : MonoBehaviour
 
     void OnEnable() 
     {
-        AnimStart();    
+        if(activeStart)
+        {
+            AnimStart();
+        }
     }
 }
