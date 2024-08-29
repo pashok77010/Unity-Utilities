@@ -28,6 +28,20 @@ public static class L
         Debug.LogError(Generate(theString, filePath, callerName));
     }
 
+    public static void DL(Vector3 startPos, Vector3? endPos, Color color, float dur = 2)
+    {   
+        if (!endPos.HasValue) 
+            endPos = new Vector3(startPos.x, startPos.y, startPos.z + 50);
+        Debug.DrawLine(startPos, endPos.Value, color, dur);
+    }
+
+    public static void DR(Vector3 startPos, Vector3? endPos, Color color, float dur = 2)
+    {
+        if (!endPos.HasValue) 
+            endPos = new Vector3(startPos.x, startPos.y, startPos.z + 50);
+        Debug.DrawRay(startPos, endPos.Value, color, dur);
+    }
+
     static string Generate(string theString = null, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "", [System.Runtime.CompilerServices.CallerMemberName] string callerName = "")
     {
         string separatingSymbol = " | ";
