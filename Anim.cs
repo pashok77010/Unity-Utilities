@@ -2,9 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-
 using Unity.VisualScripting;
-
 
 [RequireComponent(typeof(Holder))]
 public class Anim : MonoBehaviour
