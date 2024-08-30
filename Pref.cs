@@ -1,5 +1,4 @@
 using UnityEngine;
-using static My.S;
 
 public static class Pref
 {
@@ -54,7 +53,7 @@ public static class Pref
         }
         else
         {
-            LW("float.MaxValue = " + int.MaxValue);
+            L.W("float.MaxValue = " + int.MaxValue);
             return int.MaxValue;
         }
     }
@@ -96,7 +95,7 @@ public static class Pref
         {
             boolResult = false;
         }
-        L("name = " + name + " bool = " + boolResult);
+        L.O("name = " + name + " bool = " + boolResult);
         return boolResult;
     }
 
@@ -166,7 +165,7 @@ public static class Pref
 
     public static void DeteteAll()
     {
-        LW();
+        L.W();
         PlayerPrefs.DeleteAll();
     }
 }
