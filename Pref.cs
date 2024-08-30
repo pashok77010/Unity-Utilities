@@ -20,9 +20,9 @@ public static class Pref
         }
     }
 
-    public static bool HasInt(string name)
+    public static int HasGetInt(string name)
     {
-        return PlayerPrefs.HasKey(name);
+        return PlayerPrefs.HasKey(name) ? PlayerPrefs.GetInt(name) : 0;
     }
 
     public static void HasSetDefaultInt(string name, int defaultValue = 0)
