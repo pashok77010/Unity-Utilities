@@ -67,7 +67,7 @@ public class Anim : MonoBehaviour
 
     public void AnimStart()
     {
-        L.W("name = "+ name);
+        // L.W("name = "+ name);
         holder.obj.SetActive(true);
         holder.tr.localScale = instantScale;
         if(startScaleTween != null) startScaleTween.Kill();
@@ -93,6 +93,7 @@ public class Anim : MonoBehaviour
 
     public void AnimLive()
     {
+        if(liveTween != null) liveTween.Kill();
         liveTween = holder.tr.DOScale(liveScale, liveDur)
         .SetEase(liveEase)
         .SetUpdate(unscaledTime)
