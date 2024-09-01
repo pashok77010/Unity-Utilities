@@ -8,7 +8,7 @@ public class Anim : MonoBehaviour
 {
     public Holder holder;
     public Vector3 instantScale;
-    public bool unscaledTime;
+    public bool unscaledTime = true;
 
     [Header("Start")]
     public Ease startEase = Ease.InOutExpo;
@@ -52,22 +52,16 @@ public class Anim : MonoBehaviour
 
     void Start()
     {
-        // L.W("name = "+ name);
+        L.W_Blue("name = "+ name);
         if (activeStart)
         {
             AnimStart();
-        }
-
-        if (activeEnd)
-        {
-            // L.W("if (endWaitDur > 0)");
-            StartCoroutine(WaitAndEndScale());
         }
     }
 
     public void AnimStart()
     {
-        // L.W("name = "+ name);
+        L.W("name = "+ name);
         holder.obj.SetActive(true);
         holder.tr.localScale = instantScale;
         if(startScaleTween != null) startScaleTween.Kill();
@@ -79,6 +73,12 @@ public class Anim : MonoBehaviour
             if (liveDur > 0 & endWaitDur == 0)
             {
                 AnimLive();
+            }
+
+            if (activeEnd)
+            {
+                L.W_Blue("activeEnd if (endWaitDur > 0)");
+                StartCoroutine(WaitAndEndScale());
             }
         });
 
@@ -109,7 +109,7 @@ public class Anim : MonoBehaviour
 
     public void AnimEnd()
     {
-        // L.LW("name = "+name);
+        L.W("START name = "+name);
         if(liveTween != null)
         {
             // L.LW();
@@ -121,6 +121,7 @@ public class Anim : MonoBehaviour
         .SetUpdate(unscaledTime)
         .OnComplete(() =>
         {
+            L.W("OnComplete");
             if (destroy)
             {
                 Destroy(holder.obj);
@@ -133,6 +134,7 @@ public class Anim : MonoBehaviour
 
         if(holder.cg) holder.cg.DOFade(0, startDur);
         if(holder.button) holder.button.interactable = false;
+        L.W("END");
     }
 
     void OnEnable() 
