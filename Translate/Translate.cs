@@ -1,70 +1,109 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using System;
+using UnityEngine.Events;
 
-[RequireComponent(typeof(Holder))]
-public class Translate : MonoBehaviour
+public class ManTranslate : MonoBehaviour
 {
-    public Holder holder;
-    public Text textField;
-    public bool anim;
-    public string originalString;
-    float animationDuration = 1.0f; // Длительность анимации в секундах
+    public static ManTranslate i;
+    public string languagePrefs = "Language";
+    public SupportedLanguages currentLanguage = SupportedLanguages.English;
+    [HideInInspector] public UnityEvent onChangeLanguage;
 
-    private void OnValidate()
+    void Awake()
     {
-        if (textField == null) textField = GetComponent<Text>();
-        if (holder == null) holder = GetComponent<Holder>();
+        i = this;
+        Translation.Initialize();
+        currentLanguage = GetPrefsLanguage();
+        Save();
     }
 
-    void Start()
+    public string Translate(string word)
     {
-        // L.LW(name);
-        originalString = textField.text;
-        Action();
-        ManTranslate.i.onChangeLanguage.AddListener(Action);
-    }
+        if (currentLanguage == SupportedLanguages.English) return word;
 
-    public void Action()
-    {
-        // L.LW(name);
-        if(anim)
+        // L.W(
+        //     " | word = "+word + 
+        //     " | currentLanguage = "+currentLanguage + 
+        //     " | ContainsKey(currentLanguage) = "+translations.ContainsKey(currentLanguage) + 
+        //     " | translations[currentLanguage].ContainsKey(word) = "+translations[currentLanguage].ContainsKey(word)
+        // );
+
+        if (Translation.languageDictionary.ContainsKey(currentLanguage) && Translation.languageDictionary[currentLanguage].ContainsKey(word))
         {
-            string newText = ManTranslate.i.Translate(originalString);
-            if(holder.obj.activeInHierarchy) StartCoroutine(AnimateText(newText));
+            return Translation.languageDictionary[currentLanguage][word];
+        }
+
+        L.E("НЕТ ПЕРЕВОДА: " + word + "  currentLanguage = "+currentLanguage); // НЕ КОММЕНТИРОВАТЬ ЭТО НУЖНО - ЭТО ОШИБКА ОТСУТСТВИЯ ПЕРЕВОДА
+        return word;
+    }
+
+    SupportedLanguages GetPrefsLanguage()
+    {
+        if (PlayerPrefs.HasKey(languagePrefs))
+        {
+            string prefsLanguageString = PlayerPrefs.GetString(languagePrefs);
+            if (Enum.TryParse(prefsLanguageString, out SupportedLanguages savedLanguage))
+            {
+                if (Translation.languageDictionary.ContainsKey(savedLanguage))
+                {
+                    return savedLanguage;
+                }
+            }
+        }
+
+        // Если префс не установлен или язык не поддерживается, возвращаем системный язык
+        return GetSystemLanguage();
+    }
+
+    SupportedLanguages GetSystemLanguage()
+    {
+        L.W();
+        if (Enum.TryParse(Application.systemLanguage.ToString(), out SupportedLanguages systemLanguage))
+        {
+            // L.W("Язык установлен из системного = "+ systemLanguage);
+            return systemLanguage;
         }
         else
         {
-            string newText = ManTranslate.i.Translate(originalString);
-            textField.text = newText;
+            // L.W("Язык по умолчанию, т.к. системный язык не соответствует = "+ SupportedLanguages.English);
+            return SupportedLanguages.English;
         }
     }
 
-    private IEnumerator AnimateText(string newText)
+    public void NextLanguage()
     {
-        float elapsedTime = 0f;
-        string oldText = textField.text;
+        int languagesCount = Enum.GetNames(typeof(SupportedLanguages)).Length;
+        int currentLanguageIndex = (int)currentLanguage;
+        int nextLanguageIndex = (currentLanguageIndex + 1) % languagesCount;
+        SupportedLanguages nextLanguage = (SupportedLanguages)nextLanguageIndex;
 
-        // Этап удаления символов
-        while (elapsedTime < animationDuration)
-        {
-            textField.text = oldText.Substring(0, Mathf.CeilToInt((1 - elapsedTime / animationDuration) * oldText.Length));
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
+        Debug.Log("Next Language: " + nextLanguage);
+        SetLanguage(nextLanguage);
+    }
 
-        textField.text = "";
+    public void SetLanguage(SupportedLanguages language)
+    {
+        // L.W("language = "+language.ToString());
+        currentLanguage = language;
+        // L.W("1 currentLanguage = "+currentLanguage.ToString());
+        Save();
 
-        // Этап добавления нового текста
-        elapsedTime = 0f;
-        while (elapsedTime < animationDuration)
-        {
-            textField.text = newText.Substring(0, Mathf.CeilToInt(elapsedTime / animationDuration * newText.Length));
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
+        // TextTranslate[] textTranslates = FindObjectsOfType<TextTranslate>();
+        // foreach (TextTranslate theTextTranslate in textTranslates)
+        // {
+        //     theTextTranslate.Action();
+        // }
 
-        textField.text = newText;
+        onChangeLanguage.Invoke();
+        // L.W("2 currentLanguage = "+currentLanguage.ToString());
+    }
+
+    void Save()
+    {
+        PlayerPrefs.SetString(languagePrefs, currentLanguage.ToString());
+        PlayerPrefs.Save(); // Явное сохранение изменений
+        Debug.Log("Saved Language: " + currentLanguage);
     }
 }
