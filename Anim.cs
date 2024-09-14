@@ -29,6 +29,7 @@ public class Anim : MonoBehaviour
     public float endWaitDur = 0;
     public float endDur = 0.314f;
     public float endScale;
+    public float endFade = 0;
     public bool destroy;
     
     void OnValidate()
@@ -52,7 +53,7 @@ public class Anim : MonoBehaviour
 
     void Start()
     {
-        L.W_Blue("name = "+ name);
+        // L.W("name = "+ name);
         if (activeStart)
         {
             AnimStart();
@@ -61,7 +62,7 @@ public class Anim : MonoBehaviour
 
     public void AnimStart()
     {
-        L.W("name = "+ name);
+        // L.W("name = "+ name);
         holder.obj.SetActive(true);
         holder.tr.localScale = instantScale;
         if(startScaleTween != null) startScaleTween.Kill();
@@ -77,7 +78,7 @@ public class Anim : MonoBehaviour
 
             if (activeEnd)
             {
-                L.W_Blue("activeEnd if (endWaitDur > 0)");
+                // L.W("activeEnd if (endWaitDur > 0)");
                 StartCoroutine(WaitAndEndScale());
             }
         });
@@ -109,7 +110,7 @@ public class Anim : MonoBehaviour
 
     public void AnimEnd()
     {
-        L.W("START name = "+name);
+        // L.W("START name = "+name);
         if(liveTween != null)
         {
             // L.LW();
@@ -121,20 +122,30 @@ public class Anim : MonoBehaviour
         .SetUpdate(unscaledTime)
         .OnComplete(() =>
         {
-            L.W("OnComplete");
+            // L.W("OnComplete");
             if (destroy)
             {
                 Destroy(holder.obj);
             }
             else
             {
-                holder.obj.SetActive(false);
+                if(endFade == 0)
+                {
+                    holder.obj.SetActive(false);
+                }
             }
         });
 
-        if(holder.cg) holder.cg.DOFade(0, startDur);
-        if(holder.button) holder.button.interactable = false;
-        L.W("END");
+        if(holder.cg) holder.cg.DOFade(endFade, startDur);
+        if(holder.cg)
+        {
+            holder.cg.interactable = false;
+        }
+        else
+        {
+            if(holder.button) holder.button.interactable = false;
+        }
+        // L.W("END");
     }
 
     void OnEnable() 
