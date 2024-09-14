@@ -140,9 +140,9 @@ public class Anim : MonoBehaviour
             }
         });
 
-        if(holder.cg) holder.cg.DOFade(endFade, endDur);
         if(holder.cg)
         {
+            holder.cg.DOFade(endFade, endDur);
             holder.cg.interactable = false;
         }
         else
