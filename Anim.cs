@@ -87,7 +87,11 @@ public class Anim : MonoBehaviour
         {
             holder.cg.alpha = 0;
             holder.cg.DOFade(1, startDur)
-            .SetUpdate(unscaledTime);
+            .SetUpdate(unscaledTime)
+            .OnComplete(()=>
+            {
+                holder.cg.interactable = true;
+            });
         }
         if(holder.button) holder.button.interactable = true;
     }
@@ -136,7 +140,7 @@ public class Anim : MonoBehaviour
             }
         });
 
-        if(holder.cg) holder.cg.DOFade(endFade, startDur);
+        if(holder.cg) holder.cg.DOFade(endFade, endDur);
         if(holder.cg)
         {
             holder.cg.interactable = false;
